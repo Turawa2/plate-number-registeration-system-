@@ -60,3 +60,180 @@
   border-color: #006442;
   color: white;
 }
+
+/* Login Page Styles */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #008751 0%, #006442 100%);
+}
+
+.login-card {
+  border-radius: 20px;
+  border: none;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.login-card .card-body {
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .login-card .card-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Form controls */
+.form-control:focus {
+  border-color: #008751;
+  box-shadow: 0 0 0 0.2rem rgba(0, 135, 81, 0.25);
+}
+
+.btn-success {
+  background-color: #008751;
+  border-color: #008751;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: #006442;
+  border-color: #006442;
+  transform: translateY(-1px);
+}
+
+.btn-success:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+/* Alert styles */
+.alert {
+  border: none;
+  border-radius: 10px;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .login-card .card-body {
+    padding: 1rem;
+  }
+  
+  .form-control {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Stats Cards Styles */
+.stats-card {
+  transition: all 0.3s ease;
+  border: none !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 135, 81, 0.15) !important;
+}
+
+/* Color variants for stats cards */
+.bg-primary {
+  background-color: #007bff !important;
+}
+
+.bg-success {
+  background-color: #008751 !important;
+}
+
+.bg-info {
+  background-color: #17a2b8 !important;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stats-card .card-body {
+    padding: 1.5rem !important;
+  }
+  
+  .stats-card h2 {
+    font-size: 2rem !important;
+  }
+  
+  .stats-card .rounded-circle {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .stats-card .fs-3 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Animation for number counting (optional) */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-card h2 {
+  animation: countUp 0.6s ease-out;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background: linear-gradient(180deg, #008751 0%, #006442 100%);
+}
+
+.hover-bg-success:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.text-light-hover:hover {
+  color: #fff !important;
+}
+
+/* Sidebar link transitions */
+.sidebar .nav-link {
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.sidebar .nav-link:hover {
+  transform: translateX(5px);
+}
+
+/* Logout button hover effect */
+.sidebar .btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Active state with shadow */
+.sidebar .bg-success {
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}

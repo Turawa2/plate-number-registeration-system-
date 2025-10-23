@@ -1,18 +1,20 @@
-// src/components/PlateForm.js
 import React, { useState } from 'react';
-import { usePlates } from '../context/PlateContext';
-import { Card, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
+import { Card, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 
 const PlateForm = () => {
-  const { addPlate } = usePlates();
+  const { admin } = useAuth();
   const [formData, setFormData] = useState({
-    ownerName: '',
-    plateNumber: '',
-    vehicleType: '',
+    owner_name: '',
+    plate_number: '',
+    vehicle_type: '',
     state: '',
-    date: new Date().toISOString().split('T')[0],
+    registration_date: new Date().toISOString().split('T')[0],
   });
   const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertVariant, setAlertVariant] = useState('success');
+  const [loading, setLoading] = useState(false);
 
   const nigerianStates = [
     'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 
@@ -27,18 +29,53 @@ const PlateForm = () => {
     'SUV', 'Mini Van', 'Taxi', 'Trailer', 'Government Vehicle'
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addPlate(formData);
-    setFormData({
-      ownerName: '',
-      plateNumber: '',
-      vehicleType: '',
-      state: '',
-      date: new Date().toISOString().split('T')[0],
-    });
-    setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
+    setLoading(true);
+    setShowAlert(false);
+
+    try {
+      const response = await fetch('http://localhost:9000/api/plates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          created_by: admin.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormData({
+          owner_name: '',
+          plate_number: '',
+          vehicle_type: '',
+          state: '',
+          registration_date: new Date().toISOString().split('T')[0],
+        });
+        setAlertMessage('Plate number registered successfully!');
+        setAlertVariant('success');
+        setShowAlert(true);
+        
+        // Refresh the plate list by reloading the page or you can use context to update
+        window.dispatchEvent(new Event('plateAdded'));
+      } else {
+        setAlertMessage(data.message || 'Failed to register plate number');
+        setAlertVariant('danger');
+        setShowAlert(true);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setAlertMessage('Failed to connect to server. Please try again.');
+      setAlertVariant('danger');
+      setShowAlert(true);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setShowAlert(false), 5000);
+    }
   };
 
   const handleChange = (e) => {
@@ -61,9 +98,11 @@ const PlateForm = () => {
           
           <Card.Body className="p-4">
             {showAlert && (
-              <Alert variant="success" className="d-flex align-items-center">
-                <i className="fas fa-check-circle me-2"></i>
-                Plate number registered successfully!
+              <Alert variant={alertVariant} className="d-flex align-items-center">
+                <i className={`fas ${
+                  alertVariant === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'
+                } me-2`}></i>
+                {alertMessage}
               </Alert>
             )}
 
@@ -74,12 +113,13 @@ const PlateForm = () => {
                     <Form.Label>Vehicle Owner's Name *</Form.Label>
                     <Form.Control
                       type="text"
-                      name="ownerName"
-                      value={formData.ownerName}
+                      name="owner_name"
+                      value={formData.owner_name}
                       onChange={handleChange}
                       placeholder="Enter full name"
                       required
                       size="lg"
+                      disabled={loading}
                     />
                   </Form.Group>
                 </Col>
@@ -89,12 +129,13 @@ const PlateForm = () => {
                     <Form.Label>Plate Number *</Form.Label>
                     <Form.Control
                       type="text"
-                      name="plateNumber"
-                      value={formData.plateNumber}
+                      name="plate_number"
+                      value={formData.plate_number}
                       onChange={handleChange}
                       placeholder="e.g., ABC-123-LAG"
                       required
                       size="lg"
+                      disabled={loading}
                     />
                   </Form.Group>
                 </Col>
@@ -103,11 +144,12 @@ const PlateForm = () => {
                   <Form.Group className="mb-3">
                     <Form.Label>Vehicle Type *</Form.Label>
                     <Form.Select
-                      name="vehicleType"
-                      value={formData.vehicleType}
+                      name="vehicle_type"
+                      value={formData.vehicle_type}
                       onChange={handleChange}
                       required
                       size="lg"
+                      disabled={loading}
                     >
                       <option value="">Select vehicle type</option>
                       {vehicleTypes.map(type => (
@@ -126,6 +168,7 @@ const PlateForm = () => {
                       onChange={handleChange}
                       required
                       size="lg"
+                      disabled={loading}
                     >
                       <option value="">Select state</option>
                       {nigerianStates.map(state => (
@@ -140,20 +183,43 @@ const PlateForm = () => {
                     <Form.Label>Date of Registration *</Form.Label>
                     <Form.Control
                       type="date"
-                      name="date"
-                      value={formData.date}
+                      name="registration_date"
+                      value={formData.registration_date}
                       onChange={handleChange}
                       required
                       size="lg"
+                      disabled={loading}
                     />
                   </Form.Group>
                 </Col>
               </Row>
 
               <div className="d-grid">
-                <Button variant="success" type="submit" size="lg" className="fw-bold">
-                  <i className="fas fa-save me-2"></i>
-                  Register Plate Number
+                <Button 
+                  variant="success" 
+                  type="submit" 
+                  size="lg" 
+                  className="fw-bold py-3"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                      Registering...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-save me-2"></i>
+                      Register Plate Number
+                    </>
+                  )}
                 </Button>
               </div>
             </Form>
